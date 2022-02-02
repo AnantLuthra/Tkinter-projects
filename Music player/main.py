@@ -5,10 +5,10 @@ Purpose - To make a music player GUI in tkinter.
 """
 
 import random, os, time, datetime
-
 import tkinter as tk
-from tkinter import BOTTOM, ttk
+from tkinter import BOTTOM, ttk, HORIZONTAL, TOP
 from PIL import ImageTk, Image
+import tkinter.messagebox as msg
 
 class Music_player(tk.Tk):
 
@@ -22,29 +22,23 @@ class Music_player(tk.Tk):
         self.maxsize("600", "500")
         self.iconbitmap("music_player.ico")
         self.config(bg="#d088fc")
-        self.bg_color = "#d088fc"
-
-        # a = True
-        # match a:
-        #     case True:
-        #         self.play_default_song()
-        #     case _:
-        #         print("vapas aa gaya")
-        #         pass
-        
-
+        self.bg_color = "#d088fc"     
 
     def play_default_song(self):
         """This function will start song from default two directories."""
+
+        global file
 
         c = random.randint(1, 2)
         if c == 1:
             music_folder = "D:\\d data\\NCS music"
             songs = os.listdir(music_folder)
             a = random.randint(1, len(songs) - 1)
+            
             os.startfile(os.path.join(music_folder, songs[a]))
+            
             # time.sleep(60*4)
-            return
+            # return
 
         elif c == 2:
             music_folder = "D:\\d data\\New songs"
@@ -52,13 +46,11 @@ class Music_player(tk.Tk):
             a = random.randint(1, len(songs) - 1)
             os.startfile(os.path.join(music_folder, songs[a]))
             # time.sleep(60*4)
-            return
+            # return
 
-        else:
-            pass
-
-        print("Program ya se chala gaya.")
-
+        file = songs[a]
+        self.song_name.config(text=file)
+        self.update()
 
 
     def change_directory(self):
@@ -74,8 +66,43 @@ class Music_player(tk.Tk):
         pass
 
     def send_feedback(self):
-        """This function will be used to take user's feedback."""
-        pass
+        """This function takes feedback from user of experience after using notepad."""
+
+        def feedback_saver():
+            """This function saves the stars given by the user to the notepad."""
+
+            stars = percentage.get()
+            name = name_variable.get()
+            
+            if name == "Your name":
+                msg.showerror("Error", "Your name is required !")
+                feedback_window.focus()
+                return 
+
+            with open("feedback.txt", "a") as f:
+                f.write(f"{name}/{stars}\n")
+
+        # Making a toplevel window to take feedback from the user.
+        feedback_window = tk.Toplevel(self)
+        feedback_window.config(bg="#e4b7ed")
+        feedback_window.focus()
+        feedback_window.title("Feedback")
+        feedback_window.maxsize("400", "400")
+        tk.Label(feedback_window, text="Give your rating from 5 star.", font="arial 15", pady=2).pack(side=TOP, pady=10)
+
+        name_variable = tk.StringVar()
+        name_variable.set("Your name")
+
+        # Entry widget for taking feedback sender's name. #
+        ttk.Entry(feedback_window, textvariable=name_variable, font=("lucida", 12)).pack(anchor = "w", ipady=7 ,pady= 5, padx=10)
+
+        # Scale widget for taking rating from the user.
+        percentage = ttk.Scale(feedback_window, from_=1, to=5, orient=HORIZONTAL)
+        percentage.set(5)
+        percentage.pack(anchor="w", padx=60, pady=7)
+        
+
+        ttk.Button(feedback_window, text="Submit", command = feedback_saver, width=15).pack(pady=10)
 
     def next_song(self):
         """This function will play next song."""
@@ -86,32 +113,41 @@ class Music_player(tk.Tk):
     def default_directory(self, directory):
         """This function will play songs from clicked directory"""
 
-        global file, sleep_time
+        global file, sleep_time, directory1
 
-        match directory:
 
-            case "direct":
-                c = random.randint(1, 2)
-                if c == 1:
-                    music_folder = "D:\\d data\\NCS music"
-                    songs = os.listdir(music_folder)
-                    a = random.randint(1, len(songs) - 1)
-                    os.startfile(os.path.join(music_folder, songs[a]))
-                    # time.sleep(60*4)
-                elif c == 2:
-                    music_folder = "D:\\d data\\New songs"
-                    songs = os.listdir(music_folder)
-                    a = random.randint(1, len(songs) - 1)
-                    os.startfile(os.path.join(music_folder, songs[a]))
-                    # time.sleep(60*4)
-                else:
-                    pass
-
-            case "NCS":
+        if directory == "direct":
+            c = random.randint(1, 2)
+            if c == 1:
+                music_folder = "D:\\d data\\NCS music"
+                songs = os.listdir(music_folder)
+                a = random.randint(1, len(songs) - 1)
+                os.startfile(os.path.join(music_folder, songs[a]))
+                # time.sleep(60*4)
+            elif c == 2:
+                music_folder = "D:\\d data\\New songs"
+                songs = os.listdir(music_folder)
+                a = random.randint(1, len(songs) - 1)
+                os.startfile(os.path.join(music_folder, songs[a]))
+                # time.sleep(60*4)
+            else:
                 pass
+    
+        elif directory == "NCS":
 
-            case "Lyrics":
-                pass
+            # If NCS directory button is pressed.
+            music_folder = "D:\\d data\\NCS music"
+            songs = os.listdir(music_folder)
+            a = random.randint(1, len(songs) - 1)
+            os.startfile(os.path.join(music_folder, songs[a]))
+    
+        elif directory == "Lyrics":
+            # if lyrics directory button is pressed.
+            music_folder = "D:\\d data\\New songs"
+            songs = os.listdir(music_folder)
+            a = random.randint(1, len(songs) - 1)
+            os.startfile(os.path.join(music_folder, songs[a]))
+
 
     
     def menu_bar(self):
@@ -150,8 +186,10 @@ class Music_player(tk.Tk):
     def main_buttons(self):
         """This function makes basic music player buttons for controlling songs."""
 
-        song = "bapu zimmedar"
-        self.song_name = tk.Label(self, text=song, bg=self.bg_color, font=("maiandra GD", 40))
+
+        #==============| Main heading of current playing song |====================#
+        song = None
+        self.song_name = tk.Label(self, text=song, bg=self.bg_color, font=("maiandra GD", 37), wraplength=620)
         self.song_name.pack(pady=35)
 
         #============================| Main music controller buttons |=============================================#
@@ -177,6 +215,8 @@ class Music_player(tk.Tk):
         self.lyrics_song = tk.Button(self.frame1, text="NCS music", font=("arial rounded mt bold", 25), command=lambda: self.default_directory("NCS"))
         self.lyrics_song.grid(row=1, column=4, pady=10)
 
+        directory1 = "default"
+        self.play_default_song()
 
 if __name__ == "__main__":
     window = Music_player()
@@ -184,15 +224,15 @@ if __name__ == "__main__":
     window.menu_bar()
     window.main_buttons()
 
-    time_taken = (time.time() - first)
+    # time_taken = (time.time() - first)
 
-    match time_taken:
-        case 30:
-            window.default_directory("direct")
-        case _:
-            print("Time 5 minute nhi hua")
+    # match time_taken:
+    #     case 30:
+    #         window.default_directory("direct")
+    #     case _:
+    #         print("Time 5 minute nhi hua")
 
-    print("Kaam chal rha h")
+    # print("Kaam chal rha h")
 
     window.mainloop()
 
