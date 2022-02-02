@@ -24,6 +24,43 @@ class Music_player(tk.Tk):
         self.config(bg="#d088fc")
         self.bg_color = "#d088fc"
 
+        # a = True
+        # match a:
+        #     case True:
+        #         self.play_default_song()
+        #     case _:
+        #         print("vapas aa gaya")
+        #         pass
+        
+
+
+    def play_default_song(self):
+        """This function will start song from default two directories."""
+
+        c = random.randint(1, 2)
+        if c == 1:
+            music_folder = "D:\\d data\\NCS music"
+            songs = os.listdir(music_folder)
+            a = random.randint(1, len(songs) - 1)
+            os.startfile(os.path.join(music_folder, songs[a]))
+            # time.sleep(60*4)
+            return
+
+        elif c == 2:
+            music_folder = "D:\\d data\\New songs"
+            songs = os.listdir(music_folder)
+            a = random.randint(1, len(songs) - 1)
+            os.startfile(os.path.join(music_folder, songs[a]))
+            # time.sleep(60*4)
+            return
+
+        else:
+            pass
+
+        print("Program ya se chala gaya.")
+
+
+
     def change_directory(self):
         """This function changes the directory for playing the song."""
         pass
@@ -60,13 +97,13 @@ class Music_player(tk.Tk):
                     songs = os.listdir(music_folder)
                     a = random.randint(1, len(songs) - 1)
                     os.startfile(os.path.join(music_folder, songs[a]))
-                    time.sleep(60*4)
+                    # time.sleep(60*4)
                 elif c == 2:
                     music_folder = "D:\\d data\\New songs"
                     songs = os.listdir(music_folder)
                     a = random.randint(1, len(songs) - 1)
                     os.startfile(os.path.join(music_folder, songs[a]))
-                    time.sleep(60*4)
+                    # time.sleep(60*4)
                 else:
                     pass
 
@@ -147,15 +184,15 @@ if __name__ == "__main__":
     window.menu_bar()
     window.main_buttons()
 
-    # time_taken = (time.time() - first)
+    time_taken = (time.time() - first)
 
-    # match time_taken:
-    #     case 30:
-    #         window.default_directory("direct")
-    #     case _:
-    #         print("Time 5 minute nhi hua")
+    match time_taken:
+        case 30:
+            window.default_directory("direct")
+        case _:
+            print("Time 5 minute nhi hua")
 
-    # print("Kaam chal rha h")
+    print("Kaam chal rha h")
 
     window.mainloop()
 
