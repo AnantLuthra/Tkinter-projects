@@ -6,9 +6,10 @@ Purpose - To make a music player GUI in tkinter.
 
 import random, os, time, datetime
 import tkinter as tk
-from tkinter import BOTTOM, ttk, HORIZONTAL, TOP
+from tkinter import BOTTOM, HORIZONTAL, TOP
 from PIL import ImageTk, Image
 import tkinter.messagebox as msg
+
 
 class Music_player(tk.Tk):
 
@@ -21,9 +22,11 @@ class Music_player(tk.Tk):
         self.minsize("600", "500")
         self.maxsize("600", "500")
         self.iconbitmap("music_player.ico")
+        # Style(theme="journal")
+        self.bg_color = "#d088fc"
         self.config(bg="#d088fc")
-        self.bg_color = "#d088fc"     
-
+        self.resizable(False, False)
+        
     def play_default_song(self):
         """This function will start song from default two directories."""
 
@@ -63,7 +66,9 @@ class Music_player(tk.Tk):
 
     def show_about(self):
         """This function will show about of the music player."""
-        pass
+
+        msg.showinfo("About", "This Music app is developed by Anant Luthra.")
+
 
     def send_feedback(self):
         """This function takes feedback from user of experience after using notepad."""
@@ -74,35 +79,74 @@ class Music_player(tk.Tk):
             stars = percentage.get()
             name = name_variable.get()
             
-            if name == "Your name":
+            if name == "":
                 msg.showerror("Error", "Your name is required !")
-                feedback_window.focus()
+                self.feedback_window.focus()
                 return 
 
             with open("feedback.txt", "a") as f:
                 f.write(f"{name}/{stars}\n")
 
+        
+        try:    # If feedback window is already open
+            self.feedback_window.focus()
+            return
+        except (AttributeError, tk.TclError):
+            pass
+
         # Making a toplevel window to take feedback from the user.
-        feedback_window = tk.Toplevel(self)
-        feedback_window.config(bg="#e4b7ed")
-        feedback_window.focus()
-        feedback_window.title("Feedback")
-        feedback_window.maxsize("400", "400")
-        tk.Label(feedback_window, text="Give your rating from 5 star.", font="arial 15", pady=2).pack(side=TOP, pady=10)
+        self.feedback_window = tk.Toplevel(self)
+        self.feedback_window.geometry("370x280")
+        self.feedback_window_bg = "#211f21"
+        self.feedback_window_fg = "white"
+        self.feedback_window.config(bg=self.feedback_window_bg)
+        self.feedback_window.focus()
+        self.feedback_window.title("Music Player - Feedback")
+        # self.feedback_window.maxsize("400", "400")
+        self.feedback_window.resizable(False, False)
+
+        tk.Label(self.feedback_window, text="Feedback", font="arial 20", pady=2,
+                    bg=self.feedback_window_bg, fg=self.feedback_window_fg).grid(columnspan=2, row=1, padx=10, pady=7)
 
         name_variable = tk.StringVar()
-        name_variable.set("Your name")
 
-        # Entry widget for taking feedback sender's name. #
-        ttk.Entry(feedback_window, textvariable=name_variable, font=("lucida", 12)).pack(anchor = "w", ipady=7 ,pady= 5, padx=10)
+        #======================| Label for feedback sender's name |===========================#
+        tk.Label(self.feedback_window, text="Your name -", font="lucida 16", bg=self.feedback_window_bg, fg=self.feedback_window_fg).grid(row=2, padx=10, pady=10)
+
+        # Entry widget for taking feedback sender's name. 
+        tk.Entry(self.feedback_window, textvariable=name_variable,
+                     font=("lucida", 15), fg=self.feedback_window_fg).grid(ipady=4, column=1, row=2, pady=10)
 
         # Scale widget for taking rating from the user.
-        percentage = ttk.Scale(feedback_window, from_=1, to=5, orient=HORIZONTAL)
+        percentage = tk.Scale(self.feedback_window, from_=1, to=5, orient=HORIZONTAL)
         percentage.set(5)
-        percentage.pack(anchor="w", padx=60, pady=7)
+        percentage.grid(row=3, columnspan=2, padx=60, pady=20)
+        
+        tk.Button(self.feedback_window, text="Submit", command = feedback_saver, font="comicsans 15",
+                    padx=3, pady=3, fg=self.feedback_window_fg, bg="#332f33").grid(pady=10, columnspan=2, row= 4)
+
+
+    def settings(self):
+        """This function will open a new window in which all settings will be there """
+
+        try:    # If settings window is already open
+            self.feedback_window.focus()
+            return
+        except (AttributeError, tk.TclError):
+            pass
+
+        #==============| Settings top level window |====================#
+        self.setting_bg_color = "#efabf5"
+        self.setting_window = tk.Toplevel(self, bg=self.setting_bg_color)
+        self.setting_window.title("Music Player - Settings")
+        # self.setting_window.minsize()
+        self.setting_window.geometry("400x500")
         
 
-        ttk.Button(feedback_window, text="Submit", command = feedback_saver, width=15).pack(pady=10)
+        #==============| Settings Label |====================#
+        self.settings_label = tk.Label(self.setting_window, text = "Settings", justify="center", font="lucida 17")
+        self.settings_label.pack(side=TOP, fill="x", pady=5)
+        
 
     def next_song(self):
         """This function will play next song."""
@@ -113,18 +157,20 @@ class Music_player(tk.Tk):
     def default_directory(self, directory):
         """This function will play songs from clicked directory"""
 
-        global file, sleep_time, directory1
+        global file, sleep_time
 
 
         if directory == "direct":
             c = random.randint(1, 2)
             if c == 1:
+                self.directory1 = "NCS"
                 music_folder = "D:\\d data\\NCS music"
                 songs = os.listdir(music_folder)
                 a = random.randint(1, len(songs) - 1)
                 os.startfile(os.path.join(music_folder, songs[a]))
                 # time.sleep(60*4)
             elif c == 2:
+                self.directory1 = "lyrics"
                 music_folder = "D:\\d data\\New songs"
                 songs = os.listdir(music_folder)
                 a = random.randint(1, len(songs) - 1)
@@ -148,7 +194,6 @@ class Music_player(tk.Tk):
             a = random.randint(1, len(songs) - 1)
             os.startfile(os.path.join(music_folder, songs[a]))
 
-
     
     def menu_bar(self):
         """This Function makes menu bar which contains all options."""
@@ -170,6 +215,7 @@ class Music_player(tk.Tk):
         
         #==============| More Menu |====================#
         self.menu3 = tk.Menu(self.main_menu, tearoff=0)
+        self.menu3.add_command(label="Settings", command=self.settings)
         self.menu3.add_command(label="Send Feedback", command=self.send_feedback)
         self.menu3.add_separator()
         self.menu3.add_command(label="About", command=self.show_about)
@@ -200,23 +246,27 @@ class Music_player(tk.Tk):
         self.frame1.pack(anchor = "s", fill="x", side=BOTTOM)
 
         #==============| Lyrics song button |====================#
-        self.lyrics_song = tk.Button(self.frame1, text="Lyrics Songs", font=("arial rounded mt bold", 25), command=lambda: self.default_directory("Lyrics"))
+        self.lyrics_song = tk.Button(self.frame1, text="Lyrics Songs", font=("arial rounded mt bold", 25),
+                                      command=lambda: self.default_directory("Lyrics"))
         self.lyrics_song.grid(row=1, column=1, pady=10)
 
         #==============| Previous song button |====================#
         self.previous_button = tk.Button(self.frame1, text="<", font="arial 30 bold", command=self.previous_song)
         self.previous_button.grid(row=1, column=2, pady=10)
+        # self.previous_button.bind("<Enter>", lambda e: self.previous_button.configure(fg="red"))
+        # self.previous_button.bind("<Leave>", lambda e: self.previous_button.configure(fg="black"))
 
         #==============| Next song button |====================#
         self.next_button = tk.Button(self.frame1, text=">", font="arial 30 bold", command=self.next_song)
         self.next_button.grid(row=1, column=3, pady=10)
 
         #==============| NCS Music |====================#
-        self.lyrics_song = tk.Button(self.frame1, text="NCS music", font=("arial rounded mt bold", 25), command=lambda: self.default_directory("NCS"))
+        self.lyrics_song = tk.Button(self.frame1, text="NCS music", font=("arial rounded mt bold", 25),
+                                       command=lambda: self.default_directory("NCS"))
         self.lyrics_song.grid(row=1, column=4, pady=10)
 
-        directory1 = "default"
-        self.play_default_song()
+        # self.directory1 = "default"
+        # self.play_default_song()
 
 if __name__ == "__main__":
     window = Music_player()
