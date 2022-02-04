@@ -4,9 +4,9 @@ Date - 31/1/22
 Purpose - To make a music player GUI in tkinter.
 """
 
-import random, os, time, datetime
+import random, os, time, datetime, psutil, signal
 import tkinter as tk
-from tkinter import BOTTOM, HORIZONTAL, TOP
+from tkinter import ACTIVE, BOTTOM, DISABLED, HORIZONTAL, TOP
 from PIL import ImageTk, Image
 import tkinter.messagebox as msg
 
@@ -21,44 +21,62 @@ class Music_player(tk.Tk):
         self.title("Music Player - Anant Luthra")
         self.minsize("600", "500")
         self.maxsize("600", "500")
-        self.iconbitmap("music_player.ico")
-        # Style(theme="journal")
+        self.iconbitmap("./assets/music_player.ico")
         self.bg_color = "#d088fc"
         self.config(bg="#d088fc")
         self.resizable(False, False)
-        
-    def play_default_song(self):
-        """This function will start song from default two directories."""
 
-        global file
+        #==============| Directory name |====================#        
+        with open("./assets/directory.txt", "r") as f:
+            a = f.read()
+            self.current_directory = (a)
+            print(self.current_directory)
 
-        c = random.randint(1, 2)
-        if c == 1:
-            music_folder = "D:\\d data\\NCS music"
-            songs = os.listdir(music_folder)
-            a = random.randint(1, len(songs) - 1)
+    # def play_default_song(self):
+    #     """This function will start song from default two directories."""
+
+    #     global file
+
+    #     c = random.randint(1, 2)
+    #     if c == 1:
+    #         music_folder = "D:\\d data\\NCS music"
+    #         songs = os.listdir(music_folder)
+    #         a = random.randint(1, len(songs) - 1)
             
-            os.startfile(os.path.join(music_folder, songs[a]))
+    #         os.startfile(os.path.join(music_folder, songs[a]))
             
-            # time.sleep(60*4)
-            # return
+    #         # time.sleep(60*4)
+    #         # return
 
-        elif c == 2:
-            music_folder = "D:\\d data\\New songs"
-            songs = os.listdir(music_folder)
-            a = random.randint(1, len(songs) - 1)
-            os.startfile(os.path.join(music_folder, songs[a]))
-            # time.sleep(60*4)
-            # return
+    #     elif c == 2:
+    #         music_folder = "D:\\d data\\New songs"
+    #         songs = os.listdir(music_folder)
+    #         a = random.randint(1, len(songs) - 1)
+    #         os.startfile(os.path.join(music_folder, songs[a]))
+    #         # time.sleep(60*4)
+    #         # return
 
-        file = songs[a]
-        self.song_name.config(text=file)
-        self.update()
-
+    #     file = songs[a]
+    #     self.song_name.config(text=file)
+    #     self.update()
 
     def change_directory(self):
         """This function changes the directory for playing the song."""
-        pass
+    
+    def stop_music(self):
+        """This function will close the current song which is playing."""
+
+        try:
+            sig = signal.SIGTERM
+            for pid in (process.pid for process in psutil.process_iter() if process.name()==f"Music.UI.exe"):
+                os.kill(pid, sig)
+            
+            self.song_name.config(text="")
+            self.song_name.update()
+            self.close_song.config(state=DISABLED)
+
+        except Exception as e:
+            print(e)
 
     def change_font(self):
         """This function is for change the font of song name which is displayed in main window."""
@@ -68,7 +86,6 @@ class Music_player(tk.Tk):
         """This function will show about of the music player."""
 
         msg.showinfo("About", "This Music app is developed by Anant Luthra.")
-
 
     def send_feedback(self):
         """This function takes feedback from user of experience after using notepad."""
@@ -125,7 +142,6 @@ class Music_player(tk.Tk):
         tk.Button(self.feedback_window, text="Submit", command = feedback_saver, font="comicsans 15",
                     padx=3, pady=3, fg=self.feedback_window_fg, bg="#332f33").grid(pady=10, columnspan=2, row= 4)
 
-
     def settings(self):
         """This function will open a new window in which all settings will be there """
 
@@ -141,36 +157,34 @@ class Music_player(tk.Tk):
         self.setting_window.title("Music Player - Settings")
         # self.setting_window.minsize()
         self.setting_window.geometry("400x500")
+        self.setting_window.resizable(False, False)
         
 
         #==============| Settings Label |====================#
         self.settings_label = tk.Label(self.setting_window, text = "Settings", justify="center", font="lucida 17")
         self.settings_label.pack(side=TOP, fill="x", pady=5)
         
-
     def next_song(self):
         """This function will play next song."""
 
     def previous_song(self):
         """This function will play previous song"""
 
-    def default_directory(self, directory):
+    def play_from_directory(self, directory, next_previous):
         """This function will play songs from clicked directory"""
+        print(directory)
 
-        global file, sleep_time
 
-
-        if directory == "direct":
+        if directory == "default":
             c = random.randint(1, 2)
+
             if c == 1:
-                self.directory1 = "NCS"
                 music_folder = "D:\\d data\\NCS music"
                 songs = os.listdir(music_folder)
                 a = random.randint(1, len(songs) - 1)
                 os.startfile(os.path.join(music_folder, songs[a]))
                 # time.sleep(60*4)
             elif c == 2:
-                self.directory1 = "lyrics"
                 music_folder = "D:\\d data\\New songs"
                 songs = os.listdir(music_folder)
                 a = random.randint(1, len(songs) - 1)
@@ -178,23 +192,42 @@ class Music_player(tk.Tk):
                 # time.sleep(60*4)
             else:
                 pass
-    
+
         elif directory == "NCS":
+
+            if self.current_directory == directory:
+                print("directory pahaile se same h")
+
+                return
 
             # If NCS directory button is pressed.
             music_folder = "D:\\d data\\NCS music"
             songs = os.listdir(music_folder)
             a = random.randint(1, len(songs) - 1)
             os.startfile(os.path.join(music_folder, songs[a]))
+            
+            print(f"({self.current_directory}) before changing current directory")
+            self.current_directory = directory
+            print(f"({self.current_directory}) after changing current directory")
+
     
         elif directory == "Lyrics":
+            if self.current_directory == directory:
+                print("Directory pahaile se same h.")
+                return
+
             # if lyrics directory button is pressed.
             music_folder = "D:\\d data\\New songs"
             songs = os.listdir(music_folder)
             a = random.randint(1, len(songs) - 1)
             os.startfile(os.path.join(music_folder, songs[a]))
+            self.current_directory = directory
 
-    
+        file = songs[a]
+        self.song_name.config(text=file)
+        self.close_song.config(state=ACTIVE)
+        self.update()
+
     def menu_bar(self):
         """This Function makes menu bar which contains all options."""
 
@@ -228,14 +261,12 @@ class Music_player(tk.Tk):
 
         self.config(menu=self.main_menu)
 
-
     def main_buttons(self):
         """This function makes basic music player buttons for controlling songs."""
 
 
         #==============| Main heading of current playing song |====================#
-        song = None
-        self.song_name = tk.Label(self, text=song, bg=self.bg_color, font=("maiandra GD", 37), wraplength=620)
+        self.song_name = tk.Label(self, text="", bg=self.bg_color, font=("maiandra GD", 37), wraplength=620)
         self.song_name.pack(pady=35)
 
         #============================| Main music controller buttons |=============================================#
@@ -247,42 +278,34 @@ class Music_player(tk.Tk):
 
         #==============| Lyrics song button |====================#
         self.lyrics_song = tk.Button(self.frame1, text="Lyrics Songs", font=("arial rounded mt bold", 25),
-                                      command=lambda: self.default_directory("Lyrics"))
+                                      command=lambda: self.play_from_directory("Lyrics", False))
         self.lyrics_song.grid(row=1, column=1, pady=10)
 
         #==============| Previous song button |====================#
-        self.previous_button = tk.Button(self.frame1, text="<", font="arial 30 bold", command=self.previous_song)
+        self.previous_button = tk.Button(self.frame1, text="<", font="arial 25 bold", command=self.previous_song)
         self.previous_button.grid(row=1, column=2, pady=10)
+        
         # self.previous_button.bind("<Enter>", lambda e: self.previous_button.configure(fg="red"))
         # self.previous_button.bind("<Leave>", lambda e: self.previous_button.configure(fg="black"))
 
+        # #==============| Previous song button |====================#
+        self.close_song = tk.Button(self.frame1, text="Stop", font="arial 20 bold", command=self.stop_music)
+        self.close_song.grid(column=3, row=1, pady=10)
+
         #==============| Next song button |====================#
-        self.next_button = tk.Button(self.frame1, text=">", font="arial 30 bold", command=self.next_song)
-        self.next_button.grid(row=1, column=3, pady=10)
+        self.next_button = tk.Button(self.frame1, text=">", font="arial 25 bold", command=self.next_song)
+        self.next_button.grid(row=1, column=4, pady=10)
 
         #==============| NCS Music |====================#
         self.lyrics_song = tk.Button(self.frame1, text="NCS music", font=("arial rounded mt bold", 25),
-                                       command=lambda: self.default_directory("NCS"))
-        self.lyrics_song.grid(row=1, column=4, pady=10)
+                                       command=lambda: self.play_from_directory("NCS", False))
+        self.lyrics_song.grid(row=1, column=5, pady=10)
 
-        # self.directory1 = "default"
-        # self.play_default_song()
+        self.play_from_directory(self.current_directory, False)
 
 if __name__ == "__main__":
     window = Music_player()
-    first = time.time()
     window.menu_bar()
     window.main_buttons()
-
-    # time_taken = (time.time() - first)
-
-    # match time_taken:
-    #     case 30:
-    #         window.default_directory("direct")
-    #     case _:
-    #         print("Time 5 minute nhi hua")
-
-    # print("Kaam chal rha h")
-
     window.mainloop()
 
