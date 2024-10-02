@@ -14,8 +14,13 @@ class Calculator(Tk):
         self.minsize("355", "447")
         self.maxsize("355", "447")
         self.title("Calculator - By Anant Luthra")
-        self.wm_iconbitmap("calculator.ico")
+        self.wm_iconbitmap("./assets/calculator.ico")
         self.config(bg="#13aaeb")
+
+    def handle_backspace(self):
+        current_text = self.value.get()
+        if current_text:
+            self.value.set(current_text[:-1])
 
     def give(self, digit):
         "This function is used to handle pressed button action. wheather it's a digit or a function button"
@@ -147,6 +152,30 @@ class Calculator(Tk):
         self.frame1.pack(fill=X, side=TOP)
 
 
+        self.bind_all("1", lambda e: self.give("1"))
+        self.bind_all("2", lambda e: self.give("2"))
+        self.bind_all("3", lambda e: self.give("3"))
+        self.bind_all("4", lambda e: self.give("4"))
+        self.bind_all("5", lambda e: self.give("5"))
+        self.bind_all("6", lambda e: self.give("6"))
+        self.bind_all("7", lambda e: self.give("7"))
+        self.bind_all("8", lambda e: self.give("8"))
+        self.bind_all("9", lambda e: self.give("9"))
+        self.bind_all("0", lambda e: self.give("0"))
+        self.bind_all("=", lambda e: self.give("="))
+        self.bind_all("-", lambda e: self.give("-"))
+        self.bind_all("+", lambda e: self.give("+"))
+        self.bind_all("*", lambda e: self.give("*"))
+        self.bind_all("^", lambda e: self.give("^"))
+        self.bind_all("/", lambda e: self.give("/"))
+        self.bind_all(".", lambda e: self.give("."))
+        self.bind_all("%", lambda e: self.give("%"))
+        self.bind_all("<Return>", lambda e: self.give("="))
+        self.bind_all("<BackSpace>", lambda e: self.handle_backspace())
+        self.bind_all("C", lambda e: self.give("C"))
+        self.bind_all("c", lambda e: self.give("C"))
+
+
 if __name__ == "__main__":
     window = Calculator()
 
@@ -154,4 +183,3 @@ if __name__ == "__main__":
     window.all_buttons()
 
     window.mainloop()
-    
